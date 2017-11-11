@@ -19,9 +19,22 @@ public class KPMPSolution {
         this.spineOrder = spineOrder;
         this.edgePartition = edgePartition;
         this.numberOfPages = numberOfPages;
-
+        
         calculateNumberOfCrossings();
     }
+    
+    public void printPartition(PageEntry[] edgePartition){
+    	for (int i=0; i < edgePartition.length; i++){
+    		System.out.println(edgePartition[i]);
+    	}
+    }
+    
+    public void printSpineOrder(Integer[] spineOrder){
+    	for (int i=0; i < spineOrder.length; i++){
+    		System.out.print(spineOrder[i] + " ");
+    	}
+    }
+
 
     public Integer[] getSpineOrder() {
         return spineOrder;
@@ -61,14 +74,15 @@ public class KPMPSolution {
             List<PageEntry> edgesOnThisPage = new ArrayList<>();
             for(PageEntry edge: edgePartition) {
                 if (edge.page == page) {
-                    edgesOnThisPage.add(edge);
+                	if (edge.a < edge.b)
+                		edgesOnThisPage.add(edge);
                 }
             }
 
             for(PageEntry firstEdge: edgesOnThisPage) {
                 for(PageEntry secondEdge: edgesOnThisPage) {
                     if (firstEdge == secondEdge) continue;
-
+      
                     int firstEdgeSpineIndexI = spineOrderToVertexIndexMap.get(firstEdge.a);
                     int firstEdgeSpineIndexJ = spineOrderToVertexIndexMap.get(firstEdge.b);
                     int secondEdgeSpineIndexI = spineOrderToVertexIndexMap.get(secondEdge.a);
