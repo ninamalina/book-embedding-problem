@@ -13,22 +13,43 @@ import com.hom.wien.tu.Utilities.PageEntry;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-
+import java.lang.System;
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
-//    	for (int i = 1; i<10; i++ ){
-//	        KPMPInstance instance = KPMPInstance.readInstance("instances/instance-0"+i+".txt");
-//	        KPMPSolution solution = computeDeterministic(instance);
-//	        KPMPSolution solutionR = computeRandomized(instance);
-//	        System.out.println(solution.numberOfCrossings() + " " + solutionR.numberOfCrossings());
-//    	}
-    	for (int i = 10; i<16; i++ ){
-	        KPMPInstance instance = KPMPInstance.readInstance("instances/instance-"+i+".txt");
+    	for (int i = 1; i<16; i++ ){
+	        KPMPInstance instance = KPMPInstance.readInstance(String.format("instances/instance-%02d.txt", i));
+	        System.out.println("Instance " + i);
+	        System.out.println("Deterministic: ");
+	        long start = System.currentTimeMillis();
 	        KPMPSolution solution = computeDeterministic(instance);
+	        long end = System.currentTimeMillis();
+	        System.out.println("Execution time - " + (end - start)/1000.0);
+	        System.out.println("Number of crossings - " + solution.numberOfCrossings());
+	        System.out.println("Randomized: ");
+	        start = System.currentTimeMillis();
 	        KPMPSolution solutionR = computeRandomized(instance);
-	        System.out.println(solution.numberOfCrossings() + " " + solutionR.numberOfCrossings());
-    	}
+	        end = System.currentTimeMillis();
+	        System.out.println("Execution time - " + (end - start)/1000.0);
+	        System.out.println("Number of crossings - " + solutionR.numberOfCrossings());    	}
+//    	
+//    	for (int i = 10; i<16; i++ ){
+//    		System.out.println("Instance " + i);
+//	        KPMPInstance instance = KPMPInstance.readInstance("instances/instance-"+i+".txt");
+//	        System.out.println("Deterministic: ");
+//	        long start = System.currentTimeMillis();
+//	        KPMPSolution solution = computeDeterministic(instance);
+//	        long end = System.currentTimeMillis();
+//	        System.out.println("Execution time - " + (end - start)/1000.0);
+//	        System.out.println("Number of crossings - " + solution.numberOfCrossings());
+//	        System.out.println("Randomized: ");
+//	        start = System.currentTimeMillis();
+//	        KPMPSolution solutionR = computeRandomized(instance);
+//	        end = System.currentTimeMillis();
+//	        System.out.println("Execution time - " + (end - start)/1000.0);
+//	        System.out.println("Number of crossings - " + solutionR.numberOfCrossings());
+//	        //System.out.println(solution.numberOfCrossings() + " " + solutionR.numberOfCrossings());
+//    	}
 
 //        Neighborhood neighborhood = new MoveEdgeNeighborhood(instance.getAdjacencyList(), instance.getAdjacencyMatrix());
 //        IStepFunction stepFunction = new RandomImprovement(neighborhood);
