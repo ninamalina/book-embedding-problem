@@ -23,4 +23,10 @@ public class PageEntry {
         PageEntry other = (PageEntry)obj;
         return other.a == this.a && other.b == this.b && other.page == this.page;
     }
+    
+    @Override
+    public String toString() {
+    	// TODO Auto-generated method stub
+    	return "Edge (" + this.a + ", " + this.b + ") on page " + this.page;
+    }
 }
