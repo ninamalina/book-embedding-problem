@@ -1,5 +1,6 @@
 package com.hom.wien.tu.StepFunction;
 
+import com.hom.wien.tu.Neighborhood.INeighborhood;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 
 /**
@@ -7,5 +8,5 @@ import com.hom.wien.tu.Utilities.KPMPSolution;
  */
 public interface IStepFunction {
 
-    KPMPSolution nextNeighbor(KPMPSolution currentSolution);
+    KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood);
 }

@@ -1,37 +1,35 @@
 package com.hom.wien.tu.Search;
 
+import com.hom.wien.tu.Neighborhood.INeighborhood;
 import com.hom.wien.tu.StepFunction.IStepFunction;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 
 /**
  * Created by davorsafranko on 11/9/17.
  */
-public class LocalSearch implements ISearch {
+public class LocalSearch extends Search {
 
-    private int numberOfPages;
-    private KPMPSolution initialSolution;
     private IStepFunction stepFunction;
-    private long startTime;
+    private INeighborhood neighborhood;
 
-    public LocalSearch(KPMPSolution initialSolution, IStepFunction stepFunction, int numberOfPages) {
-        this.initialSolution = initialSolution;
+    public LocalSearch(KPMPSolution initialSolution, IStepFunction stepFunction, INeighborhood neighborhood) {
+        super(initialSolution);
         this.stepFunction = stepFunction;
-        this.numberOfPages = numberOfPages;
+        this.neighborhood = neighborhood;
     }
 
     @Override
-    public KPMPSolution search() {
-        this.startTime = System.currentTimeMillis();
+    protected void prepareSearch() {
 
-        KPMPSolution currentSolution = initialSolution;
-        while(shouldContinue()) {
-            KPMPSolution newSolution = stepFunction.nextNeighbor(currentSolution);
-            if (newSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
-                currentSolution = newSolution;
-            }
+    }
+
+    @Override
+    protected void findSolution() {
+        KPMPSolution newSolution = stepFunction.nextNeighbor(currentSolution, neighborhood);
+        if (newSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
+            currentSolution = newSolution;
+            System.out.println("Current number of crossings: " + currentSolution.numberOfCrossings() + "\n");
         }
-
-        return currentSolution;
     }
 
     @Override
