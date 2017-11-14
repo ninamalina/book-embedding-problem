@@ -20,7 +20,7 @@ public class KPMPSolution {
         this.edgePartition = edgePartition;
         this.numberOfPages = numberOfPages;
 
-        calculateNumberOfCrossings();
+        this.numberOfCrossings = -1;
     }
 
     public Integer[] getSpineOrder() {
@@ -46,6 +46,10 @@ public class KPMPSolution {
     }
 
     public int numberOfCrossings() {
+        if(numberOfCrossings == -1) {
+            calculateNumberOfCrossings();
+        }
+
         return numberOfCrossings;
     }
 
@@ -60,7 +64,7 @@ public class KPMPSolution {
         for(int page = 0; page < numberOfPages; page++) {
             List<PageEntry> edgesOnThisPage = new ArrayList<>();
             for(PageEntry edge: edgePartition) {
-                if (edge.page == page) {
+                if (edge.page == page && edge.a < edge.b) {
                     edgesOnThisPage.add(edge);
                 }
             }

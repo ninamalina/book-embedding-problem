@@ -1,6 +1,6 @@
 package com.hom.wien.tu.StepFunction;
 
-import com.hom.wien.tu.Neighborhood.Neighborhood;
+import com.hom.wien.tu.Neighborhood.INeighborhood;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -9,14 +9,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  */
 public class FirstImprovement implements IStepFunction {
 
-    private Neighborhood neighborhood;
-
-    public FirstImprovement(Neighborhood neighborhood) {
-        this.neighborhood = neighborhood;
-    }
-
     @Override
-    public KPMPSolution nextNeighbor(KPMPSolution currentSolution) {
-        return null;
+    public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
+        return neighborhood.firstNeighbor(currentSolution);
     }
 }

@@ -1,6 +1,6 @@
 package com.hom.wien.tu.StepFunction;
 
-import com.hom.wien.tu.Neighborhood.Neighborhood;
+import com.hom.wien.tu.Neighborhood.INeighborhood;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 
 /**
@@ -8,14 +8,8 @@ import com.hom.wien.tu.Utilities.KPMPSolution;
  */
 public class BestImprovement implements IStepFunction {
 
-    private Neighborhood neighborhood;
-
-    public BestImprovement(Neighborhood neighborhood) {
-
-    }
-
     @Override
-    public KPMPSolution nextNeighbor(KPMPSolution currentSolution) {
-        return null;
+    public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
+        return neighborhood.bestNeighbor(currentSolution);
     }
 }
