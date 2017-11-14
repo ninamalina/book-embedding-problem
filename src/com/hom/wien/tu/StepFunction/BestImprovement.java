@@ -10,6 +10,7 @@ public class BestImprovement implements IStepFunction {
 
     @Override
     public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
-        return neighborhood.bestNeighbor(currentSolution);
+        neighborhood.bestNeighbor(currentSolution);
+        return currentSolution;
     }
 }

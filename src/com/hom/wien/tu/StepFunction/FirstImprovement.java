@@ -11,6 +11,7 @@ public class FirstImprovement implements IStepFunction {
 
     @Override
     public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
-        return neighborhood.firstNeighbor(currentSolution);
+        neighborhood.firstNeighbor(currentSolution);
+        return currentSolution;
     }
 }

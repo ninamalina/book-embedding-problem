@@ -25,46 +25,47 @@ import java.util.Set;
 
 public class Main {
 
-    /*public static void main(String[] args) throws FileNotFoundException {
-        KPMPInstance instance = KPMPInstance.readInstance("instance-01.txt");
+    public static void main(String[] args) throws FileNotFoundException {
+		KPMPInstance instance = KPMPInstance.readInstance("instance-01.txt");
 
-        INeighborhood neighborhood = new MoveEdgeNeighborhood();
-        IStepFunction stepFunction = new BestImprovement();
+		INeighborhood neighborhood = new MoveEdgeNeighborhood();
+		IStepFunction stepFunction = new RandomImprovement();
 
-        Integer[] spineOrder = new Integer[instance.getNumVertices()];
-        ArrayList<PageEntry> edgesPartition = new ArrayList<>();
+		Integer[] spineOrder = new Integer[instance.getNumVertices()];
+		ArrayList<PageEntry> edgesPartition = new ArrayList<>();
 
-        Random randomNumberGenerator = new Random();
-        for(int i = 0; i < instance.getAdjacencyList().size(); i++) {
-            spineOrder[i] = i;
-            for(int j = 0; j < instance.getAdjacencyList().get(i).size(); j++) {
-                edgesPartition.add(new PageEntry(i, instance.getAdjacencyList().get(i).get(j), randomNumberGenerator.nextInt(instance.getNumberOfPages())));
-            }
-        }
+		Random randomNumberGenerator = new Random();
+		for (int i = 0; i < instance.getAdjacencyList().size(); i++) {
+			spineOrder[i] = i;
+			for (int j = 0; j < instance.getAdjacencyList().get(i).size(); j++) {
+				edgesPartition.add(new PageEntry(i, instance.getAdjacencyList().get(i).get(j), randomNumberGenerator.nextInt(instance.getNumberOfPages())));
+			}
+		}
 
-        KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition.stream().toArray(PageEntry[]::new), instance.getNumberOfPages());
-        //ISearch search = new LocalSearch(initialSolution, stepFunction, neighborhood);
+		KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition.stream().toArray(PageEntry[]::new), instance.getNumberOfPages());
+		initialSolution.calculateNumberOfCrossingsForPages();
 
-        INeighborhood[] neighborhoods = new INeighborhood[2];
-        neighborhoods[0] = new SwapVertices();
-        neighborhoods[1] = new MoveEdgeNeighborhood();
+		INeighborhood[] neighborhoods = new INeighborhood[2];
+		neighborhoods[0] = new SwapVertices();
+		neighborhoods[1] = new MoveEdgeNeighborhood();
 
-        //Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
-        //Search search = new VariableNeighborhoodDescent(neighborhoods, initialSolution);
+		Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
+		//Search search = new VariableNeighborhoodDescent(neighborhoods, initialSolution);
 
-        INeighborhood[] firstNeighborhoods = new INeighborhood[2];
-        firstNeighborhoods[0] = new SwapVertices();
-        firstNeighborhoods[1] = new MoveEdgeNeighborhood();
+		INeighborhood[] firstNeighborhoods = new INeighborhood[2];
+		firstNeighborhoods[0] = new SwapVertices();
+		firstNeighborhoods[1] = new MoveEdgeNeighborhood();
 
-        INeighborhood[] secondNeighborhoods = new INeighborhood[2];
-        secondNeighborhoods[0] = new SwapVertices();
-        secondNeighborhoods[1] = new MoveEdgeNeighborhood();
+		INeighborhood[] secondNeighborhoods = new INeighborhood[2];
+		secondNeighborhoods[0] = new SwapVertices();
+		secondNeighborhoods[1] = new MoveEdgeNeighborhood();
 
-        Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
-        search.search();
-=======
+		//Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
+		search.search();
+	}
+/*=======
 import java.lang.System;
-public class Main {*/
+public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
     	for (int i = 1; i<16; i++ ){
@@ -132,5 +133,5 @@ public class Main {*/
         DeterministicConstruction construction = new DeterministicConstruction();
         KPMPSolution solution = construction.buildSolution(instance, true);
         return solution;
-    }
+    }*/
 }

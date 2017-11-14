@@ -11,11 +11,14 @@ public class LocalSearch extends Search {
 
     private IStepFunction stepFunction;
     private INeighborhood neighborhood;
+    private int currentNumberOfCrossings;
 
     public LocalSearch(KPMPSolution initialSolution, IStepFunction stepFunction, INeighborhood neighborhood) {
         super(initialSolution);
         this.stepFunction = stepFunction;
         this.neighborhood = neighborhood;
+
+        this.currentNumberOfCrossings = initialSolution.calculateCrossingsFromMap();
     }
 
     @Override
@@ -25,11 +28,21 @@ public class LocalSearch extends Search {
 
     @Override
     protected void findSolution() {
-        KPMPSolution newSolution = stepFunction.nextNeighbor(currentSolution, neighborhood);
+        /*KPMPSolution newSolution = stepFunction.nextNeighbor(currentSolution, neighborhood);
         if (newSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
             currentSolution = newSolution;
             System.out.println("Current number of crossings: " + currentSolution.numberOfCrossings() + "\n");
+        }*/
+
+        stepFunction.nextNeighbor(currentSolution, neighborhood);
+        int newNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
+
+        if(newNumberOfCrossings < currentNumberOfCrossings) {
+            currentNumberOfCrossings = newNumberOfCrossings;
+            System.out.println("Current number of crossings: " + newNumberOfCrossings + "\n");
+            //System.out.println("Current number of crossings2: " + currentSolution.numberOfCrossings() + "\n");
         }
+
     }
 
     @Override

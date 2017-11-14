@@ -17,26 +17,28 @@ public class MoveEdgeNeighborhood implements INeighborhood {
     }
 
     @Override
-    public KPMPSolution randomNeighbor(KPMPSolution solution) {
-        PageEntry[] newEdgePartition = solution.getEdgePartition().clone();
-        int randomEdge = randomNumberGenerator.nextInt(newEdgePartition.length);
-        PageEntry selectedPageEntry = newEdgePartition[randomEdge];
+    public void randomNeighbor(KPMPSolution solution) {
+        PageEntry[] edgePartition = solution.getEdgePartition();
+        int randomEdgeIndex = randomNumberGenerator.nextInt(edgePartition.length);
+        PageEntry selectedPageEntry = edgePartition[randomEdgeIndex];
 
         int randomPage;
         do {
             randomPage = randomNumberGenerator.nextInt(solution.numberOfPages());
         } while(randomPage == selectedPageEntry.page);
 
-
         PageEntry newPageEntry = new PageEntry(selectedPageEntry.a, selectedPageEntry.b, randomPage);
-        newEdgePartition[randomEdge] = newPageEntry;
 
-        KPMPSolution randomSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
-        return randomSolution;
+        int numberOfCrossingsOnFirstPage = solution.numberOfCrossingsOnPageForEdge(selectedPageEntry);
+        int numberOfCrossingsOnSecondPage = solution.numberOfCrossingsOnPageForEdge(newPageEntry);
+
+        if( numberOfCrossingsOnSecondPage < numberOfCrossingsOnFirstPage) {
+            solution.moveEdgeFromPageToPage(selectedPageEntry, newPageEntry, numberOfCrossingsOnFirstPage, numberOfCrossingsOnSecondPage,randomEdgeIndex);
+        }
     }
 
     @Override
-    public KPMPSolution firstNeighbor(KPMPSolution solution) {
+    public void firstNeighbor(KPMPSolution solution) {
         PageEntry[] newEdgePartition = solution.getEdgePartition().clone();
 
         for(int edgeIndex = 0; edgeIndex < newEdgePartition.length; edgeIndex++) {
@@ -49,7 +51,7 @@ public class MoveEdgeNeighborhood implements INeighborhood {
 
                     KPMPSolution neighborSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
                     if (neighborSolution.numberOfCrossings() < solution.numberOfCrossings()) {
-                        return neighborSolution;
+                        //return neighborSolution;
                     }
 
                     newEdgePartition[edgeIndex] = thisPageEntry;
@@ -57,17 +59,19 @@ public class MoveEdgeNeighborhood implements INeighborhood {
             }
         }
 
-        return solution;
+        //return solution;
     }
 
     @Override
-    public KPMPSolution bestNeighbor(KPMPSolution solution) {
+    public void bestNeighbor(KPMPSolution solution) {
         PageEntry[] newEdgePartition = solution.getEdgePartition().clone();
         int minimumCrossingsValue = Integer.MAX_VALUE;
         int minEdgeIndex = 0;
         int pageNumber = 0;
 
         for(int edgeIndex = 0; edgeIndex < newEdgePartition.length; edgeIndex++) {
+
+
             PageEntry thisPageEntry = newEdgePartition[edgeIndex];
             for(int i = 0; i < solution.numberOfPages(); i++) {
 
@@ -92,6 +96,6 @@ public class MoveEdgeNeighborhood implements INeighborhood {
 
         KPMPSolution bestSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
 
-        return bestSolution;
+        //return bestSolution;
     }
 }

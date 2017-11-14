@@ -7,9 +7,9 @@ import com.hom.wien.tu.Utilities.KPMPSolution;
  */
 public interface INeighborhood {
 
-    KPMPSolution randomNeighbor(KPMPSolution solution);
+    void randomNeighbor(KPMPSolution solution);
 
-    KPMPSolution firstNeighbor(KPMPSolution solution);
+    void firstNeighbor(KPMPSolution solution);
 
-    KPMPSolution bestNeighbor(KPMPSolution solution);
+    void bestNeighbor(KPMPSolution solution);
 }

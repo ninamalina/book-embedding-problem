@@ -15,7 +15,7 @@ public class SwapVertices implements INeighborhood {
     }
 
     @Override
-    public KPMPSolution randomNeighbor(KPMPSolution solution) {
+    public void randomNeighbor(KPMPSolution solution) {
         int firstIndex = randomNumberGenerator.nextInt(solution.getSpineOrder().length);
 
         int secondIndex;
@@ -29,11 +29,11 @@ public class SwapVertices implements INeighborhood {
         newSpineOrder[secondIndex] = firstIndexValue;
 
         KPMPSolution randomSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
-        return randomSolution;
+        //return randomSolution;
     }
 
     @Override
-    public KPMPSolution firstNeighbor(KPMPSolution solution) {
+    public void firstNeighbor(KPMPSolution solution) {
         Integer[] newSpineOrder = solution.getSpineOrder().clone();
 
         for(int i = 0; i < solution.numberOfPages(); i++) {
@@ -46,17 +46,17 @@ public class SwapVertices implements INeighborhood {
 
                     KPMPSolution newSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
                     if(newSolution.numberOfCrossings() < solution.numberOfCrossings()) {
-                        return newSolution;
+                        //return newSolution;
                     }
                 }
             }
         }
 
-        return solution;
+        //return solution;
     }
 
     @Override
-    public KPMPSolution bestNeighbor(KPMPSolution solution) {
+    public void bestNeighbor(KPMPSolution solution) {
         Integer[] newSpineOrder = solution.getSpineOrder().clone();
         int firstIndex = 0;
         int secondIndex = 0;
@@ -90,6 +90,6 @@ public class SwapVertices implements INeighborhood {
         newSpineOrder[secondIndex] = temp;
 
         KPMPSolution bestSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
-        return bestSolution;
+        //return bestSolution;
     }
 }

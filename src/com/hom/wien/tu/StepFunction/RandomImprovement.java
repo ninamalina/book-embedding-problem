@@ -10,6 +10,7 @@ public class RandomImprovement implements IStepFunction {
 
     @Override
     public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
-        return neighborhood.randomNeighbor(currentSolution);
+        neighborhood.randomNeighbor(currentSolution);
+        return currentSolution;
     }
 }
