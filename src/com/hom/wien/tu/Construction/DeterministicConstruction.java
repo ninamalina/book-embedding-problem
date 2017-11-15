@@ -21,52 +21,53 @@ public class DeterministicConstruction {
 		ArrayIndexComparator comparator = new ArrayIndexComparator(adjList);
 		Integer[] indexes = comparator.createIndexArray();
 		Arrays.sort(indexes, comparator);
-
 		List<Integer> spineOrder = new ArrayList<Integer>();
 		ArrayList<PageEntry> edgesPartition = new ArrayList<>();
-		
-		for(Integer i:indexes){
-			spineOrder.add(i);
-		}
 		
 		if (random){
 			Collections.shuffle(spineOrder);
 		}
 
-		KPMPSolution currentSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), edgesPartition.stream().toArray(PageEntry[]::new), K);;
+		KPMPSolution currentSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), edgesPartition, K);;
 		currentSolution.calculateNumberOfCrossingsForPages();
-		Map<Integer,Integer> crossingsForPage = currentSolution.getCrossingsOnPageMap();
-
-		for (Integer index:spineOrder){
-//			System.out.println(index);
+		for (Integer index:indexes){
+			if (!spineOrder.contains(index)){
+				spineOrder.add(index);
+				currentSolution.setSpineOrder(spineOrder.stream().toArray(Integer[]::new));
+			}
 			List<Integer> neighbours = adjList.get(index);
 			if (random){
 				Collections.shuffle(neighbours);
 			}
 			for(int neighbour: neighbours){
+				if (!spineOrder.contains(neighbour)){
+					spineOrder.add(neighbour);
+					currentSolution.setSpineOrder(spineOrder.stream().toArray(Integer[]::new));
+				}
+				
 				if (neighbour < index){
 					continue;
 				}
 				int bestPage = 0;
 				int bestCrossings = -1;
-				int newCrossingsForPageK = -1;
-				
+				int newCrossingsForPageK = -1;				
 				int oldNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
+				
 				for (int page=0; page < K; page++){
-					
 					ArrayList<PageEntry> newEdgesPartition = new ArrayList(edgesPartition);
 					PageEntry newEdge = new PageEntry(index, neighbour, page);
 					newEdgesPartition.add(newEdge);
-					KPMPSolution newSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), newEdgesPartition.stream().toArray(PageEntry[]::new), K);
+					KPMPSolution newSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), newEdgesPartition, K);
 					int additionalNumberOfcrossingsForPage = newSolution.numberOfCrossingsOnPageForEdge(newEdge);
-					Map<Integer,Integer> newMapOfCrossings = new HashMap(crossingsForPage);
+					Map<Integer,Integer> newMapOfCrossings = new HashMap(currentSolution.getCrossingsOnPageMap());
 					if (newMapOfCrossings.containsKey(page)){
 						newMapOfCrossings.put(page, newMapOfCrossings.get(page)+additionalNumberOfcrossingsForPage);
 					}else{
 						newMapOfCrossings.put(page, additionalNumberOfcrossingsForPage);
 					}
+					newSolution.setMap(newMapOfCrossings);
 					
-					int newNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
+					int newNumberOfCrossings = newSolution.calculateCrossingsFromMap();
 					
 					if (bestCrossings == -1 || newNumberOfCrossings < bestCrossings){
 						bestPage = page;
@@ -80,12 +81,12 @@ public class DeterministicConstruction {
 				}
 				
 				edgesPartition.add(new PageEntry(index,  neighbour,  bestPage));
-				crossingsForPage.put(bestPage, newCrossingsForPageK);
+				currentSolution.getCrossingsOnPageMap().put(bestPage, newCrossingsForPageK);
 			}
 		}
 		
-		KPMPSolution solution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), edgesPartition.stream().toArray(PageEntry[]::new), K);
-		return solution;
+		currentSolution.setEdgePartition(edgesPartition);
+		return currentSolution;
 	}
 
 	public class ArrayIndexComparator implements Comparator<Integer>

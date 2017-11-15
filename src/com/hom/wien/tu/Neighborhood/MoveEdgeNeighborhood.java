@@ -3,6 +3,7 @@ package com.hom.wien.tu.Neighborhood;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 import com.hom.wien.tu.Utilities.PageEntry;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -18,9 +19,9 @@ public class MoveEdgeNeighborhood implements INeighborhood {
 
     @Override
     public void randomNeighbor(KPMPSolution solution) {
-        PageEntry[] edgePartition = solution.getEdgePartition();
-        int randomEdgeIndex = randomNumberGenerator.nextInt(edgePartition.length);
-        PageEntry selectedPageEntry = edgePartition[randomEdgeIndex];
+        List<PageEntry> edgePartition = solution.getEdgePartition();
+        int randomEdgeIndex = randomNumberGenerator.nextInt(edgePartition.size());
+        PageEntry selectedPageEntry = edgePartition.remove(randomEdgeIndex);
 
         int randomPage;
         do {
@@ -28,73 +29,71 @@ public class MoveEdgeNeighborhood implements INeighborhood {
         } while(randomPage == selectedPageEntry.page);
 
         PageEntry newPageEntry = new PageEntry(selectedPageEntry.a, selectedPageEntry.b, randomPage);
-
         int numberOfCrossingsOnFirstPage = solution.numberOfCrossingsOnPageForEdge(selectedPageEntry);
         int numberOfCrossingsOnSecondPage = solution.numberOfCrossingsOnPageForEdge(newPageEntry);
 
         if( numberOfCrossingsOnSecondPage < numberOfCrossingsOnFirstPage) {
-            solution.moveEdgeFromPageToPage(selectedPageEntry, newPageEntry, numberOfCrossingsOnFirstPage, numberOfCrossingsOnSecondPage,randomEdgeIndex);
+        	solution.moveEdgeFromPageToPage(selectedPageEntry, newPageEntry, numberOfCrossingsOnFirstPage, numberOfCrossingsOnSecondPage);
+          } else {
+        	edgePartition.add(selectedPageEntry);
         }
     }
 
     @Override
     public void firstNeighbor(KPMPSolution solution) {
-        PageEntry[] newEdgePartition = solution.getEdgePartition().clone();
+    	 List<PageEntry> edgePartition = solution.getEdgePartition();
+         int n = edgePartition.size();
+         for(int i = 0; i < n; i++) {
+            PageEntry thisPageEntry = edgePartition.remove(0);
+            for(int page = 0; page < solution.numberOfPages(); page++) {
 
-        for(int edgeIndex = 0; edgeIndex < newEdgePartition.length; edgeIndex++) {
-            PageEntry thisPageEntry = newEdgePartition[edgeIndex];
-            for(int i = 0; i < solution.numberOfPages(); i++) {
-
-                if(i != thisPageEntry.page) {
-                    PageEntry newPageEntry = new PageEntry(thisPageEntry.a, thisPageEntry.b, i);
-                    newEdgePartition[edgeIndex] = newPageEntry;
-
-                    KPMPSolution neighborSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
-                    if (neighborSolution.numberOfCrossings() < solution.numberOfCrossings()) {
-                        //return neighborSolution;
+                if(page != thisPageEntry.page) {
+                    PageEntry newPageEntry = new PageEntry(thisPageEntry.a, thisPageEntry.b, page);
+                    int numberOfCrossingsOnFirstPage = solution.numberOfCrossingsOnPageForEdge(thisPageEntry);
+                    int numberOfCrossingsOnSecondPage = solution.numberOfCrossingsOnPageForEdge(newPageEntry);
+                    if( numberOfCrossingsOnSecondPage < numberOfCrossingsOnFirstPage) {
+                     	solution.moveEdgeFromPageToPage(thisPageEntry, newPageEntry, numberOfCrossingsOnFirstPage, numberOfCrossingsOnSecondPage);
+                        return;
                     }
-
-                    newEdgePartition[edgeIndex] = thisPageEntry;
                 }
             }
+            edgePartition.add(thisPageEntry);
         }
-
-        //return solution;
     }
 
     @Override
     public void bestNeighbor(KPMPSolution solution) {
-        PageEntry[] newEdgePartition = solution.getEdgePartition().clone();
-        int minimumCrossingsValue = Integer.MAX_VALUE;
-        int minEdgeIndex = 0;
-        int pageNumber = 0;
+//        PageEntry[] newEdgePartition = solution.getEdgePartition().clone();
+//        int minimumCrossingsValue = Integer.MAX_VALUE;
+//        int minEdgeIndex = 0;
+//        int pageNumber = 0;
+//
+//        for(int edgeIndex = 0; edgeIndex < newEdgePartition.length; edgeIndex++) {
+//
+//
+//            PageEntry thisPageEntry = newEdgePartition[edgeIndex];
+//            for(int i = 0; i < solution.numberOfPages(); i++) {
+//
+//                if(i != thisPageEntry.page) {
+//                    PageEntry newPageEntry = new PageEntry(thisPageEntry.a, thisPageEntry.b, i);
+//                    newEdgePartition[edgeIndex] = newPageEntry;
+//
+//                    KPMPSolution neighborSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
+//                    if (neighborSolution.numberOfCrossings() < minimumCrossingsValue) {
+//                        minimumCrossingsValue = neighborSolution.numberOfCrossings();
+//                        minEdgeIndex = edgeIndex;
+//                        pageNumber = i;
+//                    }
+//
+//                    newEdgePartition[edgeIndex] = thisPageEntry;
+//                }
+//            }
+//        }
 
-        for(int edgeIndex = 0; edgeIndex < newEdgePartition.length; edgeIndex++) {
-
-
-            PageEntry thisPageEntry = newEdgePartition[edgeIndex];
-            for(int i = 0; i < solution.numberOfPages(); i++) {
-
-                if(i != thisPageEntry.page) {
-                    PageEntry newPageEntry = new PageEntry(thisPageEntry.a, thisPageEntry.b, i);
-                    newEdgePartition[edgeIndex] = newPageEntry;
-
-                    KPMPSolution neighborSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
-                    if (neighborSolution.numberOfCrossings() < minimumCrossingsValue) {
-                        minimumCrossingsValue = neighborSolution.numberOfCrossings();
-                        minEdgeIndex = edgeIndex;
-                        pageNumber = i;
-                    }
-
-                    newEdgePartition[edgeIndex] = thisPageEntry;
-                }
-            }
-        }
-
-        PageEntry newPageEntry = new PageEntry(newEdgePartition[minEdgeIndex].a, newEdgePartition[minEdgeIndex].b, pageNumber);
-        newEdgePartition[minEdgeIndex] = newPageEntry;
-
-        KPMPSolution bestSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
+//        PageEntry newPageEntry = new PageEntry(newEdgePartition[minEdgeIndex].a, newEdgePartition[minEdgeIndex].b, pageNumber);
+//        newEdgePartition[minEdgeIndex] = newPageEntry;
+//
+//        KPMPSolution bestSolution = new KPMPSolution(solution.getSpineOrder(), newEdgePartition, solution.numberOfPages());
 
         //return bestSolution;
     }

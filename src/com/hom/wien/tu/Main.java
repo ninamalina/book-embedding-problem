@@ -29,7 +29,7 @@ public class Main {
 		KPMPInstance instance = KPMPInstance.readInstance("instance-01.txt");
 
 		INeighborhood neighborhood = new MoveEdgeNeighborhood();
-		IStepFunction stepFunction = new RandomImprovement();
+		IStepFunction stepFunction = new FirstImprovement();
 
 		Integer[] spineOrder = new Integer[instance.getNumVertices()];
 		ArrayList<PageEntry> edgesPartition = new ArrayList<>();
@@ -38,55 +38,43 @@ public class Main {
 		for (int i = 0; i < instance.getAdjacencyList().size(); i++) {
 			spineOrder[i] = i;
 			for (int j = 0; j < instance.getAdjacencyList().get(i).size(); j++) {
-				edgesPartition.add(new PageEntry(i, instance.getAdjacencyList().get(i).get(j), randomNumberGenerator.nextInt(instance.getNumberOfPages())));
+				int neighbour = instance.getAdjacencyList().get(i).get(j);
+				if (i < neighbour){
+					edgesPartition.add(new PageEntry(i, neighbour, randomNumberGenerator.nextInt(instance.getNumberOfPages())));
+				}
 			}
 		}
 
-		KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition.stream().toArray(PageEntry[]::new), instance.getNumberOfPages());
+		KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition, instance.getNumberOfPages());
 		initialSolution.calculateNumberOfCrossingsForPages();
-
-		INeighborhood[] neighborhoods = new INeighborhood[2];
-		neighborhoods[0] = new SwapVertices();
-		neighborhoods[1] = new MoveEdgeNeighborhood();
-
+		initialSolution.printMap();
+//
+//		INeighborhood[] neighborhoods = new INeighborhood[2];
+//		neighborhoods[0] = new SwapVertices();
+//		neighborhoods[1] = new MoveEdgeNeighborhood();
+////
 		Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
 		//Search search = new VariableNeighborhoodDescent(neighborhoods, initialSolution);
-
-		INeighborhood[] firstNeighborhoods = new INeighborhood[2];
-		firstNeighborhoods[0] = new SwapVertices();
-		firstNeighborhoods[1] = new MoveEdgeNeighborhood();
-
-		INeighborhood[] secondNeighborhoods = new INeighborhood[2];
-		secondNeighborhoods[0] = new SwapVertices();
-		secondNeighborhoods[1] = new MoveEdgeNeighborhood();
-
+//
+//		INeighborhood[] firstNeighborhoods = new INeighborhood[2];
+//		firstNeighborhoods[0] = new SwapVertices();
+//		firstNeighborhoods[1] = new MoveEdgeNeighborhood();
+//
+//		INeighborhood[] secondNeighborhoods = new INeighborhood[2];
+//		secondNeighborhoods[0] = new SwapVertices();
+//		secondNeighborhoods[1] = new MoveEdgeNeighborhood();
+//
 		//Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
 		search.search();
-	}
-/*=======
-import java.lang.System;
-public class Main {
-
-    public static void main(String[] args) throws FileNotFoundException {
-    	for (int i = 1; i<16; i++ ){
-	        KPMPInstance instance = KPMPInstance.readInstance(String.format("instances/instance-%02d.txt", i));
-	        System.out.println("Instance " + i);
-	        System.out.println("Deterministic: ");
-	        long start = System.currentTimeMillis();
-	        KPMPSolution solution = computeDeterministic(instance);
-	        long end = System.currentTimeMillis();
-	        System.out.println("Execution time - " + (end - start)/1000.0);
-	        System.out.println("Number of crossings - " + solution.numberOfCrossings());
-	        System.out.println("Randomized: ");
-	        start = System.currentTimeMillis();
-	        KPMPSolution solutionR = computeRandomized(instance);
-	        end = System.currentTimeMillis();
-	        System.out.println("Execution time - " + (end - start)/1000.0);
-	        System.out.println("Number of crossings - " + solutionR.numberOfCrossings());    	}
-//    	
-//    	for (int i = 10; i<16; i++ ){
-//    		System.out.println("Instance " + i);
-//	        KPMPInstance instance = KPMPInstance.readInstance("instances/instance-"+i+".txt");
+//	}
+///*=======
+//import java.lang.System;
+//public class Main {
+//
+//    public static void main(String[] args) throws FileNotFoundException {
+//    	for (int i = 1; i<16; i++ ){
+//	        KPMPInstance instance = KPMPInstance.readInstance(String.format("instances/instance-%02d.txt", i));
+//	        System.out.println("Instance " + i);
 //	        System.out.println("Deterministic: ");
 //	        long start = System.currentTimeMillis();
 //	        KPMPSolution solution = computeDeterministic(instance);
@@ -98,9 +86,7 @@ public class Main {
 //	        KPMPSolution solutionR = computeRandomized(instance);
 //	        end = System.currentTimeMillis();
 //	        System.out.println("Execution time - " + (end - start)/1000.0);
-//	        System.out.println("Number of crossings - " + solutionR.numberOfCrossings());
-//	        //System.out.println(solution.numberOfCrossings() + " " + solutionR.numberOfCrossings());
-//    	}
+//	        System.out.println("Number of crossings - " + solutionR.numberOfCrossings());    	}
 
 //        Neighborhood neighborhood = new MoveEdgeNeighborhood(instance.getAdjacencyList(), instance.getAdjacencyMatrix());
 //        IStepFunction stepFunction = new RandomImprovement(neighborhood);
@@ -133,5 +119,5 @@ public class Main {
         DeterministicConstruction construction = new DeterministicConstruction();
         KPMPSolution solution = construction.buildSolution(instance, true);
         return solution;
-    }*/
+    }
 }

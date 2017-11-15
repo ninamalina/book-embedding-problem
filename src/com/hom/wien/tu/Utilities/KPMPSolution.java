@@ -11,13 +11,13 @@ import java.util.Map;
 public class KPMPSolution {
 
     private Integer[] spineOrder;
-    private PageEntry[] edgePartition;
+    private List<PageEntry> edgePartition;
     private int numberOfPages;
     private int numberOfCrossings;
     private Map<Integer,Integer> crossingsOnPage;
     private boolean crossingsCalculated = false;
 
-    public KPMPSolution(Integer[] spineOrder, PageEntry[] edgePartition, int numberOfPages) {
+    public KPMPSolution(Integer[] spineOrder, List<PageEntry> edgePartition, int numberOfPages) {
         this.spineOrder = spineOrder;
         this.edgePartition = edgePartition;
         this.numberOfPages = numberOfPages;
@@ -25,13 +25,13 @@ public class KPMPSolution {
         crossingsOnPage = new HashMap<>();
     }
     
-    public void printPartition(PageEntry[] edgePartition){
-    	for (int i=0; i < edgePartition.length; i++){
-    		System.out.println(edgePartition[i]);
+    public void printPartition(){
+    	for (int i=0; i < edgePartition.size(); i++){
+    		System.out.println(edgePartition.get(i));
     	}
     }
     
-    public void printSpineOrder(Integer[] spineOrder){
+    public void printSpineOrder(){
     	for (int i=0; i < spineOrder.length; i++){
     		System.out.print(spineOrder[i] + " ");
     	}
@@ -41,7 +41,7 @@ public class KPMPSolution {
         return spineOrder;
     }
 
-    public PageEntry[] getEdgePartition() {
+    public List<PageEntry> getEdgePartition() {
         return edgePartition;
     }
 
@@ -51,19 +51,13 @@ public class KPMPSolution {
 
     public void setSpineOrder(Integer[] spineOrder) {
         this.spineOrder = spineOrder;
-        calculateNumberOfCrossings();
     }
 
-    public void setEdgePartition(PageEntry[] edgePartition) {
+    public void setEdgePartition(List<PageEntry> edgePartition) {
         this.edgePartition = edgePartition;
-        calculateNumberOfCrossings();
     }
 
     public int numberOfCrossings() {
-    	/*if (!crossingsCalculated){
-    		calculateNumberOfCrossings();
-    	}*/
-
         calculateNumberOfCrossings();
         return numberOfCrossings;
     }
@@ -108,7 +102,7 @@ public class KPMPSolution {
                 if (firstEdgeSpineIndexI < secondEdgeSpineIndexI &&
                     firstEdgeSpineIndexJ < secondEdgeSpineIndexJ &&
                     firstEdgeSpineIndexI < firstEdgeSpineIndexJ &&
-                    firstEdgeSpineIndexJ < secondEdgeSpineIndexI &&
+                    firstEdgeSpineIndexJ > secondEdgeSpineIndexI &&
                     secondEdgeSpineIndexI < secondEdgeSpineIndexJ) {
                         numberOfCrossings++;
                 }
@@ -132,12 +126,10 @@ public class KPMPSolution {
             		edgesOnThisPage.add(pageEntry);
             }
         }
-        
        
         for(PageEntry firstEdge: edgesOnThisPage) {
 
                 if (firstEdge == edge) continue;
-  
                 int firstEdgeSpineIndexI = spineOrderToVertexIndexMap.get(firstEdge.a);
                 int firstEdgeSpineIndexJ = spineOrderToVertexIndexMap.get(firstEdge.b);
                 int secondEdgeSpineIndexI = spineOrderToVertexIndexMap.get(edge.a);
@@ -154,17 +146,24 @@ public class KPMPSolution {
                     secondEdgeSpineIndexI = secondEdgeSpineIndexJ;
                     secondEdgeSpineIndexJ = temp;
                 }
+                
+                if (firstEdgeSpineIndexI > secondEdgeSpineIndexI){
+                	int temp = firstEdgeSpineIndexI;
+                	firstEdgeSpineIndexI = secondEdgeSpineIndexI;
+                	secondEdgeSpineIndexI = temp;
+                	temp = firstEdgeSpineIndexJ;
+                	firstEdgeSpineIndexJ = secondEdgeSpineIndexJ;
+                	secondEdgeSpineIndexJ = temp;
+                }
 
                 if (firstEdgeSpineIndexI < secondEdgeSpineIndexI &&
                     firstEdgeSpineIndexJ < secondEdgeSpineIndexJ &&
                     firstEdgeSpineIndexI < firstEdgeSpineIndexJ &&
-                    firstEdgeSpineIndexJ < secondEdgeSpineIndexI &&
+                    firstEdgeSpineIndexJ > secondEdgeSpineIndexI &&
                     secondEdgeSpineIndexI < secondEdgeSpineIndexJ) {
                         numberOfCrossings++;
                 }
-            
         }
-        
         return numberOfCrossings;
     }
     
@@ -208,7 +207,7 @@ public class KPMPSolution {
                     if (firstEdgeSpineIndexI < secondEdgeSpineIndexI &&
                         firstEdgeSpineIndexJ < secondEdgeSpineIndexJ &&
                         firstEdgeSpineIndexI < firstEdgeSpineIndexJ &&
-                        firstEdgeSpineIndexJ < secondEdgeSpineIndexI &&
+                        firstEdgeSpineIndexJ > secondEdgeSpineIndexI &&
                         secondEdgeSpineIndexI < secondEdgeSpineIndexJ) {
                             numberOfCrossings++;
                     }
@@ -238,7 +237,7 @@ public class KPMPSolution {
             for(PageEntry firstEdge: edgesOnThisPage) {
                 for(PageEntry secondEdge: edgesOnThisPage) {
                     if (firstEdge == secondEdge) continue;
-      
+
                     int firstEdgeSpineIndexI = spineOrderToVertexIndexMap.get(firstEdge.a);
                     int firstEdgeSpineIndexJ = spineOrderToVertexIndexMap.get(firstEdge.b);
                     int secondEdgeSpineIndexI = spineOrderToVertexIndexMap.get(secondEdge.a);
@@ -259,7 +258,7 @@ public class KPMPSolution {
                     if (firstEdgeSpineIndexI < secondEdgeSpineIndexI &&
                         firstEdgeSpineIndexJ < secondEdgeSpineIndexJ &&
                         firstEdgeSpineIndexI < firstEdgeSpineIndexJ &&
-                        firstEdgeSpineIndexJ < secondEdgeSpineIndexI &&
+                        firstEdgeSpineIndexJ > secondEdgeSpineIndexI &&
                         secondEdgeSpineIndexI < secondEdgeSpineIndexJ) {
                             numberOfCrossings++;
                     }
@@ -269,14 +268,20 @@ public class KPMPSolution {
         }
     }
 
-    public void moveEdgeFromPageToPage(PageEntry firstPage, PageEntry secondPage, int numberOfCrossingsFirstPage, int numberOfCrossingsSecondPage, int edgeIndex) {
-        edgePartition[edgeIndex] = secondPage;
+    public void moveEdgeFromPageToPage(PageEntry firstPage, PageEntry secondPage, int numberOfCrossingsFirstPage, int numberOfCrossingsSecondPage) {
+        edgePartition.add(secondPage);
         crossingsOnPage.put(firstPage.page, crossingsOnPage.get(firstPage.page) - numberOfCrossingsFirstPage);
         crossingsOnPage.put(secondPage.page, crossingsOnPage.get(secondPage.page) + numberOfCrossingsSecondPage);
     }
 
     public Map<Integer,Integer> getCrossingsOnPageMap() {
         return this.crossingsOnPage;
+    }
+    
+    public void printMap(){
+    	for(Integer key:crossingsOnPage.keySet()){
+    		System.out.println(key + ": " + crossingsOnPage.get(key));
+    	}
     }
 
     public int calculateCrossingsFromMap() {
@@ -285,6 +290,10 @@ public class KPMPSolution {
             sum += crossingsOnPage.get(key);
         }
         return sum;
+    }
+    
+    public void setMap(Map<Integer, Integer> newMap){
+    	this.crossingsOnPage = newMap;
     }
 
 }

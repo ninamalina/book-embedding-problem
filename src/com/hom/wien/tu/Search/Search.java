@@ -20,7 +20,8 @@ public abstract class Search {
         this.startTime = System.currentTimeMillis();
 
         currentSolution = initialSolution;
-        while(shouldContinue()) {
+//        while(shouldContinue()) {
+        	while(true) {
             findSolution();
         }
     }

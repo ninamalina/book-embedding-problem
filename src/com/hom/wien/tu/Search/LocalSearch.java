@@ -28,20 +28,10 @@ public class LocalSearch extends Search {
 
     @Override
     protected void findSolution() {
-        /*KPMPSolution newSolution = stepFunction.nextNeighbor(currentSolution, neighborhood);
-        if (newSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
-            currentSolution = newSolution;
-            System.out.println("Current number of crossings: " + currentSolution.numberOfCrossings() + "\n");
-        }*/
 
         stepFunction.nextNeighbor(currentSolution, neighborhood);
         int newNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
-
-        if(newNumberOfCrossings < currentNumberOfCrossings) {
-            currentNumberOfCrossings = newNumberOfCrossings;
-            System.out.println("Current number of crossings: " + newNumberOfCrossings + "\n");
-            //System.out.println("Current number of crossings2: " + currentSolution.numberOfCrossings() + "\n");
-        }
+        System.out.println(newNumberOfCrossings + " "+ currentSolution.numberOfCrossings());
 
     }
 
