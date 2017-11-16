@@ -58,7 +58,6 @@ public class KPMPSolution {
     }
 
     public int numberOfCrossings() {
-        calculateNumberOfCrossings();
         return numberOfCrossings;
     }
     
@@ -128,7 +127,6 @@ public class KPMPSolution {
         }
        
         for(PageEntry firstEdge: edgesOnThisPage) {
-
                 if (firstEdge == edge) continue;
                 int firstEdgeSpineIndexI = spineOrderToVertexIndexMap.get(firstEdge.a);
                 int firstEdgeSpineIndexJ = spineOrderToVertexIndexMap.get(firstEdge.b);
@@ -167,7 +165,7 @@ public class KPMPSolution {
         return numberOfCrossings;
     }
     
-    private void calculateNumberOfCrossings() {
+    public void calculateNumberOfCrossings() {
         int numberOfCrossings = 0;
 
         Map<Integer, Integer> spineOrderToVertexIndexMap = new HashMap<>();
@@ -215,6 +213,10 @@ public class KPMPSolution {
             }
         }
 
+        this.numberOfCrossings = numberOfCrossings;
+    }
+
+    public void setNumberOfCrossings(int numberOfCrossings) {
         this.numberOfCrossings = numberOfCrossings;
     }
     
@@ -269,7 +271,7 @@ public class KPMPSolution {
     }
 
     public void moveEdgeFromPageToPage(PageEntry firstPage, PageEntry secondPage, int numberOfCrossingsFirstPage, int numberOfCrossingsSecondPage) {
-        edgePartition.add(secondPage);
+        firstPage.page = secondPage.page;
         crossingsOnPage.put(firstPage.page, crossingsOnPage.get(firstPage.page) - numberOfCrossingsFirstPage);
         crossingsOnPage.put(secondPage.page, crossingsOnPage.get(secondPage.page) + numberOfCrossingsSecondPage);
     }

@@ -10,8 +10,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class FirstImprovement implements IStepFunction {
 
     @Override
-    public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
-        neighborhood.firstNeighbor(currentSolution);
-        return currentSolution;
+    public int nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
+        return neighborhood.firstNeighbor(currentSolution);
     }
 }

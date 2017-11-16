@@ -9,8 +9,7 @@ import com.hom.wien.tu.Utilities.KPMPSolution;
 public class BestImprovement implements IStepFunction {
 
     @Override
-    public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
-        neighborhood.bestNeighbor(currentSolution);
-        return currentSolution;
+    public int nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
+        return neighborhood.bestNeighbor(currentSolution);
     }
 }

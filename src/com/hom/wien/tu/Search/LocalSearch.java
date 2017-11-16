@@ -27,12 +27,15 @@ public class LocalSearch extends Search {
     }
 
     @Override
-    protected void findSolution() {
+    protected boolean findSolution() {
+        int newNumberOfCrossings = stepFunction.nextNeighbor(currentSolution, neighborhood);
 
-        stepFunction.nextNeighbor(currentSolution, neighborhood);
-        int newNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
-        System.out.println(newNumberOfCrossings + " "+ currentSolution.numberOfCrossings());
+        if (newNumberOfCrossings < currentNumberOfCrossings) {
+            currentNumberOfCrossings = newNumberOfCrossings;
+            return true;
+        }
 
+        return false;
     }
 
     @Override

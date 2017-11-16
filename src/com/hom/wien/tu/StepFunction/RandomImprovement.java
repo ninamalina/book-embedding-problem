@@ -9,8 +9,7 @@ import com.hom.wien.tu.Utilities.KPMPSolution;
 public class RandomImprovement implements IStepFunction {
 
     @Override
-    public KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
-        neighborhood.randomNeighbor(currentSolution);
-        return currentSolution;
+    public int nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood) {
+        return neighborhood.randomNeighbor(currentSolution);
     }
 }

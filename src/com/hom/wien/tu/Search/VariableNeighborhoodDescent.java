@@ -14,13 +14,14 @@ public class VariableNeighborhoodDescent extends Search {
     private INeighborhood[] neighborhoods;
     private IStepFunction stepFunction;
     private int index = 0;
+    private int currentNumberOfCrossings;
 
     public VariableNeighborhoodDescent(INeighborhood[] neighborhoods, KPMPSolution initialSolution) {
         super(initialSolution);
         this.neighborhoods = neighborhoods;
         this.stepFunction = new BestImprovement();
 
-        currentSolution = initialSolution;
+        this.currentNumberOfCrossings = initialSolution.calculateCrossingsFromMap();
     }
 
     @Override
@@ -29,17 +30,20 @@ public class VariableNeighborhoodDescent extends Search {
     }
 
     @Override
-    protected void findSolution() {
+    protected boolean findSolution() {
         while(index < neighborhoods.length) {
-            KPMPSolution currentNeighborhoodBestSolution = stepFunction.nextNeighbor(currentSolution, neighborhoods[index]);
-            if (currentNeighborhoodBestSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
-                currentSolution = currentNeighborhoodBestSolution;
+            int newNumberOfCrossings = stepFunction.nextNeighbor(currentSolution, neighborhoods[index]);
+            if (newNumberOfCrossings < currentNumberOfCrossings) {
+                currentNumberOfCrossings = newNumberOfCrossings;
                 index = 0;
-                //System.out.println("Current number of crossings: " + currentSolution.numberOfCrossings() + "\n");
+
+                return true;
             } else {
                 index++;
             }
         }
+
+        return false;
     }
 
     @Override

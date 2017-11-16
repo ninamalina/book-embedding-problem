@@ -15,7 +15,10 @@ public class SwapVertices implements INeighborhood {
     }
 
     @Override
-    public void randomNeighbor(KPMPSolution solution) {
+    public int randomNeighbor(KPMPSolution solution) {
+        int currentSolutionNumberOfCrossings = solution.numberOfCrossings();
+
+        Integer[] spineOrder = solution.getSpineOrder();
         int firstIndex = randomNumberGenerator.nextInt(solution.getSpineOrder().length);
 
         int secondIndex;
@@ -23,41 +26,55 @@ public class SwapVertices implements INeighborhood {
             secondIndex = randomNumberGenerator.nextInt(solution.getSpineOrder().length);
         } while (secondIndex == firstIndex);
 
-        Integer[] newSpineOrder = solution.getSpineOrder().clone();
-        int firstIndexValue = newSpineOrder[firstIndex];
-        newSpineOrder[firstIndex] = newSpineOrder[secondIndex];
-        newSpineOrder[secondIndex] = firstIndexValue;
+        int firstIndexValue = spineOrder[firstIndex];
+        spineOrder[firstIndex] = spineOrder[secondIndex];
+        spineOrder[secondIndex] = firstIndexValue;
 
-        KPMPSolution randomSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
-        //return randomSolution;
+        solution.calculateNumberOfCrossings();
+        int newSolutionNumberOfCrossings = solution.numberOfCrossings();
+
+        if(newSolutionNumberOfCrossings < currentSolutionNumberOfCrossings) {
+            return newSolutionNumberOfCrossings;
+        }else {
+            firstIndexValue = spineOrder[firstIndex];
+            spineOrder[firstIndex] = spineOrder[secondIndex];
+            spineOrder[secondIndex] = firstIndexValue;
+
+            return currentSolutionNumberOfCrossings;
+        }
     }
 
     @Override
-    public void firstNeighbor(KPMPSolution solution) {
-        Integer[] newSpineOrder = solution.getSpineOrder().clone();
+    public int firstNeighbor(KPMPSolution solution) {
+        int currentSolutionNumberOfCrossings = solution.numberOfCrossings();
+        Integer[] spineOrder = solution.getSpineOrder();
 
         for(int i = 0; i < solution.numberOfPages(); i++) {
             for(int j = i; j < solution.numberOfPages(); j++) {
                 if( (i != j)) {
 
-                    int temp = newSpineOrder[i];
-                    newSpineOrder[i] = newSpineOrder[j];
-                    newSpineOrder[j] = temp;
+                    int temp = spineOrder[i];
+                    spineOrder[i] = spineOrder[j];
+                    spineOrder[j] = temp;
 
-                    KPMPSolution newSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
-                    if(newSolution.numberOfCrossings() < solution.numberOfCrossings()) {
-                        //return newSolution;
+                    int newSolutionNumberOfCrossings = solution.numberOfCrossings();
+                    if(newSolutionNumberOfCrossings < currentSolutionNumberOfCrossings) {
+                        return newSolutionNumberOfCrossings;
                     }
+
+                    temp = spineOrder[i];
+                    spineOrder[i] = spineOrder[j];
+                    spineOrder[j] = temp;
                 }
             }
         }
 
-        //return solution;
+        return currentSolutionNumberOfCrossings;
     }
 
     @Override
-    public void bestNeighbor(KPMPSolution solution) {
-        Integer[] newSpineOrder = solution.getSpineOrder().clone();
+    public int bestNeighbor(KPMPSolution solution) {
+        Integer[] spineOrder = solution.getSpineOrder();
         int firstIndex = 0;
         int secondIndex = 0;
         int minimumCrossingsNumber = solution.numberOfCrossings();
@@ -66,30 +83,29 @@ public class SwapVertices implements INeighborhood {
             for(int j = 0; j < solution.numberOfPages(); j++) {
                 if( (i != j)) {
 
-                    int temp = newSpineOrder[i];
-                    newSpineOrder[i] = newSpineOrder[j];
-                    newSpineOrder[j] = temp;
+                    int temp = spineOrder[i];
+                    spineOrder[i] = spineOrder[j];
+                    spineOrder[j] = temp;
 
-                    KPMPSolution newSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
-                    if(newSolution.numberOfCrossings() < minimumCrossingsNumber) {
+                    int newSolutionNumberOfCrossings = solution.numberOfCrossings();
+                    if(newSolutionNumberOfCrossings < minimumCrossingsNumber) {
                         firstIndex = i;
                         secondIndex = j;
 
-                        minimumCrossingsNumber = newSolution.numberOfCrossings();
+                        minimumCrossingsNumber = newSolutionNumberOfCrossings;
                     }
 
-                    temp = newSpineOrder[i];
-                    newSpineOrder[i] = newSpineOrder[j];
-                    newSpineOrder[j] = temp;
+                    temp = spineOrder[i];
+                    spineOrder[i] = spineOrder[j];
+                    spineOrder[j] = temp;
                 }
             }
         }
 
-        int temp = newSpineOrder[firstIndex];
-        newSpineOrder[firstIndex] = newSpineOrder[secondIndex];
-        newSpineOrder[secondIndex] = temp;
+        int temp = spineOrder[firstIndex];
+        spineOrder[firstIndex] = spineOrder[secondIndex];
+        spineOrder[secondIndex] = temp;
 
-        KPMPSolution bestSolution = new KPMPSolution(newSpineOrder, solution.getEdgePartition(), solution.numberOfPages());
-        //return bestSolution;
+        return minimumCrossingsNumber;
     }
 }

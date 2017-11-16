@@ -8,5 +8,5 @@ import com.hom.wien.tu.Utilities.KPMPSolution;
  */
 public interface IStepFunction {
 
-    KPMPSolution nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood);
+    int nextNeighbor(KPMPSolution currentSolution, INeighborhood neighborhood);
 }

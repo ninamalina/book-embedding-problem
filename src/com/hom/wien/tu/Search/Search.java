@@ -10,6 +10,7 @@ public abstract class Search {
     protected long startTime;
     protected KPMPSolution currentSolution;
     protected KPMPSolution initialSolution;
+    protected int iterationsWithoutImprovement = 0;
 
     public Search(KPMPSolution initialSolution) {
         this.initialSolution = initialSolution;
@@ -20,9 +21,14 @@ public abstract class Search {
         this.startTime = System.currentTimeMillis();
 
         currentSolution = initialSolution;
-//        while(shouldContinue()) {
-        	while(true) {
-            findSolution();
+        while(shouldContinue() && (iterationsWithoutImprovement <= 2000)) {
+            boolean improved = findSolution();
+            if(improved) {
+                //System.out.println("Current number of crossings: " + currentSolution.calculateCrossingsFromMap());
+                iterationsWithoutImprovement = 0;
+            }else {
+                iterationsWithoutImprovement++;
+            }
         }
     }
 
@@ -31,6 +37,6 @@ public abstract class Search {
     }
 
     protected abstract void prepareSearch();
-    protected abstract void findSolution();
+    protected abstract boolean findSolution();
     protected abstract boolean shouldContinue();
 }

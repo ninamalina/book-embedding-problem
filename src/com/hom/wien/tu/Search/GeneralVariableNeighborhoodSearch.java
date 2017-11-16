@@ -29,22 +29,25 @@ public class GeneralVariableNeighborhoodSearch extends Search {
     }
 
     @Override
-    protected void findSolution() {
+    protected boolean findSolution() {
         while(index < firstNeighborhoods.length) {
-            KPMPSolution currentNeighborhoodBestSolution = stepFunction.nextNeighbor(currentSolution, firstNeighborhoods[index]);
+            stepFunction.nextNeighbor(currentSolution, firstNeighborhoods[index]);
 
-            VariableNeighborhoodDescent vnd = new VariableNeighborhoodDescent(secondNeighborhoods, currentNeighborhoodBestSolution);
+            VariableNeighborhoodDescent vnd = new VariableNeighborhoodDescent(secondNeighborhoods, currentSolution);
             vnd.findSolution();
-            currentNeighborhoodBestSolution = vnd.getBestSolution();
+            KPMPSolution currentNeighborhoodBestSolution = vnd.getBestSolution();
 
             if (currentNeighborhoodBestSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
                 currentSolution = currentNeighborhoodBestSolution;
                 index = 0;
-                System.out.println("Current number of crossings: " + currentSolution.numberOfCrossings() + "\n");
+
+                return true;
             } else {
                 index++;
             }
         }
+
+        return false;
     }
 
     @Override
