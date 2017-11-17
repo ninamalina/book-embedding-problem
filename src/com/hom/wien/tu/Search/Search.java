@@ -13,6 +13,7 @@ public abstract class Search {
     protected int iterationsWithoutImprovement = 0;
 
     public Search(KPMPSolution initialSolution) {
+        currentSolution = initialSolution;
         this.initialSolution = initialSolution;
     }
 
@@ -20,7 +21,6 @@ public abstract class Search {
         prepareSearch();
         this.startTime = System.currentTimeMillis();
 
-        currentSolution = initialSolution;
         while(shouldContinue() && (iterationsWithoutImprovement <= 2000)) {
             boolean improved = findSolution();
             if(improved) {

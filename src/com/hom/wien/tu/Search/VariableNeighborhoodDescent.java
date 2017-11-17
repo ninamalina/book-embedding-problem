@@ -3,6 +3,7 @@ package com.hom.wien.tu.Search;
 import com.hom.wien.tu.Neighborhood.INeighborhood;
 import com.hom.wien.tu.StepFunction.BestImprovement;
 import com.hom.wien.tu.StepFunction.IStepFunction;
+import com.hom.wien.tu.StepFunction.RandomImprovement;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 
 

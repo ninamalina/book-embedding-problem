@@ -24,7 +24,15 @@ public class KPMPSolution {
 
         crossingsOnPage = new HashMap<>();
     }
-    
+
+    public KPMPSolution(KPMPSolution solution) {
+        this.spineOrder = solution.spineOrder.clone();
+        this.edgePartition = new ArrayList<>(solution.edgePartition);
+        this.numberOfPages = solution.numberOfPages();
+
+        this.crossingsOnPage = new HashMap<>();
+    }
+
     public void printPartition(){
     	for (int i=0; i < edgePartition.size(); i++){
     		System.out.println(edgePartition.get(i));

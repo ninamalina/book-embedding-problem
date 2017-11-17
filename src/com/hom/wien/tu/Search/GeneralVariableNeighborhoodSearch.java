@@ -5,6 +5,8 @@ import com.hom.wien.tu.StepFunction.IStepFunction;
 import com.hom.wien.tu.StepFunction.RandomImprovement;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 
+import java.util.HashMap;
+
 /**
  * Created by davorsafranko on 11/13/17.
  */
@@ -31,13 +33,14 @@ public class GeneralVariableNeighborhoodSearch extends Search {
     @Override
     protected boolean findSolution() {
         while(index < firstNeighborhoods.length) {
-            stepFunction.nextNeighbor(currentSolution, firstNeighborhoods[index]);
+            int oldNumberOfCrossings = stepFunction.nextNeighbor(currentSolution, firstNeighborhoods[index]);
 
-            VariableNeighborhoodDescent vnd = new VariableNeighborhoodDescent(secondNeighborhoods, currentSolution);
+            KPMPSolution currentNeighborhoodBestSolution = new KPMPSolution(currentSolution);
+            currentNeighborhoodBestSolution.setMap(new HashMap<>(currentSolution.getCrossingsOnPageMap()));
+            VariableNeighborhoodDescent vnd = new VariableNeighborhoodDescent(secondNeighborhoods, currentNeighborhoodBestSolution);
             vnd.findSolution();
-            KPMPSolution currentNeighborhoodBestSolution = vnd.getBestSolution();
 
-            if (currentNeighborhoodBestSolution.numberOfCrossings() < currentSolution.numberOfCrossings()) {
+            if (currentNeighborhoodBestSolution.calculateCrossingsFromMap() < oldNumberOfCrossings) {
                 currentSolution = currentNeighborhoodBestSolution;
                 index = 0;
 

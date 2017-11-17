@@ -1,6 +1,9 @@
 package com.hom.wien.tu.Neighborhood;
 
 import com.hom.wien.tu.Utilities.KPMPSolution;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -16,7 +19,8 @@ public class SwapVertices implements INeighborhood {
 
     @Override
     public int randomNeighbor(KPMPSolution solution) {
-        int currentSolutionNumberOfCrossings = solution.numberOfCrossings();
+        Map<Integer,Integer> initialMap = new HashMap<>(solution.getCrossingsOnPageMap());
+        int currentSolutionNumberOfCrossings = solution.calculateCrossingsFromMap();
 
         Integer[] spineOrder = solution.getSpineOrder();
         int firstIndex = randomNumberGenerator.nextInt(solution.getSpineOrder().length);
@@ -30,8 +34,8 @@ public class SwapVertices implements INeighborhood {
         spineOrder[firstIndex] = spineOrder[secondIndex];
         spineOrder[secondIndex] = firstIndexValue;
 
-        solution.calculateNumberOfCrossings();
-        int newSolutionNumberOfCrossings = solution.numberOfCrossings();
+        solution.calculateNumberOfCrossingsForPages();
+        int newSolutionNumberOfCrossings = solution.calculateCrossingsFromMap();
 
         if(newSolutionNumberOfCrossings < currentSolutionNumberOfCrossings) {
             return newSolutionNumberOfCrossings;
@@ -40,24 +44,29 @@ public class SwapVertices implements INeighborhood {
             spineOrder[firstIndex] = spineOrder[secondIndex];
             spineOrder[secondIndex] = firstIndexValue;
 
+            solution.setMap(initialMap);
             return currentSolutionNumberOfCrossings;
         }
     }
 
     @Override
     public int firstNeighbor(KPMPSolution solution) {
-        int currentSolutionNumberOfCrossings = solution.numberOfCrossings();
-        Integer[] spineOrder = solution.getSpineOrder();
+        Map<Integer,Integer> initialMap = new HashMap<>(solution.getCrossingsOnPageMap());
+        int currentSolutionNumberOfCrossings = solution.calculateCrossingsFromMap();
 
-        for(int i = 0; i < solution.numberOfPages(); i++) {
-            for(int j = i; j < solution.numberOfPages(); j++) {
+        Integer[] spineOrder = solution.getSpineOrder();
+        int spineLength = spineOrder.length;
+        for(int i = 0; i < spineLength; i++) {
+            for(int j = i; j < spineLength; j++) {
                 if( (i != j)) {
 
                     int temp = spineOrder[i];
                     spineOrder[i] = spineOrder[j];
                     spineOrder[j] = temp;
 
-                    int newSolutionNumberOfCrossings = solution.numberOfCrossings();
+                    solution.calculateNumberOfCrossingsForPages();
+                    int newSolutionNumberOfCrossings = solution.calculateCrossingsFromMap();
+
                     if(newSolutionNumberOfCrossings < currentSolutionNumberOfCrossings) {
                         return newSolutionNumberOfCrossings;
                     }
@@ -65,6 +74,10 @@ public class SwapVertices implements INeighborhood {
                     temp = spineOrder[i];
                     spineOrder[i] = spineOrder[j];
                     spineOrder[j] = temp;
+
+                    for(Integer key : initialMap.keySet()) {
+                        solution.getCrossingsOnPageMap().put(key, initialMap.get(key));
+                    }
                 }
             }
         }
@@ -74,20 +87,26 @@ public class SwapVertices implements INeighborhood {
 
     @Override
     public int bestNeighbor(KPMPSolution solution) {
+        Map<Integer,Integer> initialMap = new HashMap<>(solution.getCrossingsOnPageMap());
+
         Integer[] spineOrder = solution.getSpineOrder();
+        int spineLength = spineOrder.length;
         int firstIndex = 0;
         int secondIndex = 0;
-        int minimumCrossingsNumber = solution.numberOfCrossings();
 
-        for(int i = 0; i < solution.numberOfPages(); i++) {
-            for(int j = 0; j < solution.numberOfPages(); j++) {
+        solution.calculateNumberOfCrossingsForPages();
+        int minimumCrossingsNumber = solution.calculateCrossingsFromMap();
+
+        for(int i = 0; i < spineLength; i++) {
+            for(int j = 0; j < spineLength; j++) {
                 if( (i != j)) {
 
                     int temp = spineOrder[i];
                     spineOrder[i] = spineOrder[j];
                     spineOrder[j] = temp;
 
-                    int newSolutionNumberOfCrossings = solution.numberOfCrossings();
+                    solution.calculateNumberOfCrossingsForPages();
+                    int newSolutionNumberOfCrossings = solution.calculateCrossingsFromMap();
                     if(newSolutionNumberOfCrossings < minimumCrossingsNumber) {
                         firstIndex = i;
                         secondIndex = j;
@@ -98,6 +117,10 @@ public class SwapVertices implements INeighborhood {
                     temp = spineOrder[i];
                     spineOrder[i] = spineOrder[j];
                     spineOrder[j] = temp;
+
+                    for(Integer key : initialMap.keySet()) {
+                        solution.getCrossingsOnPageMap().put(key, initialMap.get(key));
+                    }
                 }
             }
         }
@@ -106,6 +129,7 @@ public class SwapVertices implements INeighborhood {
         spineOrder[firstIndex] = spineOrder[secondIndex];
         spineOrder[secondIndex] = temp;
 
+        solution.calculateCrossingsFromMap();
         return minimumCrossingsNumber;
     }
 }

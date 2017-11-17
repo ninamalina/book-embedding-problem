@@ -25,10 +25,10 @@ public class Main {
 		int minValue = Integer.MAX_VALUE;
 
 		for(int t = 0; t < 100; t++) {
-			KPMPInstance instance = KPMPInstance.readInstance("instance-09.txt");
+			KPMPInstance instance = KPMPInstance.readInstance("instance-02.txt");
 
 			INeighborhood neighborhood = new MoveEdgeNeighborhood();
-			IStepFunction stepFunction = new RandomImprovement();
+			IStepFunction stepFunction = new BestImprovement();
 
 			Integer[] spineOrder = new Integer[instance.getNumVertices()];
 			ArrayList<PageEntry> edgesPartition = new ArrayList<>();
@@ -49,28 +49,29 @@ public class Main {
 			initialSolution.calculateNumberOfCrossings();
 //
 			INeighborhood[] neighborhoods = new INeighborhood[2];
-			neighborhoods[0] = new SwapVertices();
-			neighborhoods[1] = new MoveEdgeNeighborhood();
+			neighborhoods[0] = new MoveEdgeNeighborhood();
+			neighborhoods[1] = new SwapVertices();
 ////
-			Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
+			//Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
 			//Search search = new VariableNeighborhoodDescent(neighborhoods, initialSolution);
 //
-//		INeighborhood[] firstNeighborhoods = new INeighborhood[2];
-//		firstNeighborhoods[0] = new SwapVertices();
-//		firstNeighborhoods[1] = new MoveEdgeNeighborhood();
-//
-//		INeighborhood[] secondNeighborhoods = new INeighborhood[2];
-//		secondNeighborhoods[0] = new SwapVertices();
-//		secondNeighborhoods[1] = new MoveEdgeNeighborhood();
-//
-			//Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
+		INeighborhood[] firstNeighborhoods = new INeighborhood[2];
+		firstNeighborhoods[0] = new MoveEdgeNeighborhood();
+		firstNeighborhoods[1] = new MoveEdgeNeighborhood();
+
+		INeighborhood[] secondNeighborhoods = new INeighborhood[2];
+		secondNeighborhoods[0] = new MoveEdgeNeighborhood();
+		secondNeighborhoods[1] = new MoveEdgeNeighborhood();
+
+			Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
 			search.search();
 
 
 			if(initialSolution.calculateCrossingsFromMap() < minValue) {
 				minIndex = t;
+				initialSolution.calculateNumberOfCrossingsForPages();
 				minValue = initialSolution.calculateCrossingsFromMap();
-				writeSolutionToFile(initialSolution, "instance06" + t +".txt");
+				writeSolutionToFile(initialSolution, "instance" + t +".txt");
 			}
 
 			System.out.println("Total number of crossings: " + initialSolution.calculateCrossingsFromMap());
