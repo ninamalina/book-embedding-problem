@@ -1,5 +1,14 @@
 package com.hom.wien.tu;
 
+import com.hom.wien.tu.GeneticAlgorithm.CrossOver.ICrossOver;
+import com.hom.wien.tu.GeneticAlgorithm.CrossOver.UniformCrossOver;
+import com.hom.wien.tu.GeneticAlgorithm.GASolution;
+import com.hom.wien.tu.GeneticAlgorithm.GeneticAlgorithm;
+import com.hom.wien.tu.GeneticAlgorithm.Mutation.IMutation;
+import com.hom.wien.tu.GeneticAlgorithm.Mutation.RandomMutation;
+import com.hom.wien.tu.GeneticAlgorithm.Selection.ISelection;
+import com.hom.wien.tu.GeneticAlgorithm.Selection.RandomSelection;
+import com.hom.wien.tu.GeneticAlgorithm.Selection.RouletteWheelSelection;
 import com.hom.wien.tu.Neighborhood.INeighborhood;
 import com.hom.wien.tu.Construction.DeterministicConstruction;
 import com.hom.wien.tu.Neighborhood.MoveEdgeNeighborhood;
@@ -21,63 +30,110 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-		int minIndex = 0;
-		int minValue = Integer.MAX_VALUE;
+		String filename = "instance-01";
+		KPMPInstance instance = KPMPInstance.readInstance(filename + ".txt");
+		Random randomNumberGenerator = new Random();
 
-		for(int t = 0; t < 100; t++) {
-			KPMPInstance instance = KPMPInstance.readInstance("instance-02.txt");
+		Integer[] spineOrder = new Integer[instance.getNumVertices()];
+		ArrayList<PageEntry> edgesPartition = new ArrayList<>();
 
-			INeighborhood neighborhood = new MoveEdgeNeighborhood();
-			IStepFunction stepFunction = new BestImprovement();
-
-			Integer[] spineOrder = new Integer[instance.getNumVertices()];
-			ArrayList<PageEntry> edgesPartition = new ArrayList<>();
-
-			Random randomNumberGenerator = new Random();
-			for (int i = 0; i < instance.getAdjacencyList().size(); i++) {
-				spineOrder[i] = i;
-				for (int j = 0; j < instance.getAdjacencyList().get(i).size(); j++) {
-					int neighbour = instance.getAdjacencyList().get(i).get(j);
-					if (i < neighbour){
-						edgesPartition.add(new PageEntry(i, neighbour, randomNumberGenerator.nextInt(instance.getNumberOfPages())));
-					}
+		for (int i = 0; i < instance.getAdjacencyList().size(); i++) {
+			spineOrder[i] = i;
+			for (int j = 0; j < instance.getAdjacencyList().get(i).size(); j++) {
+				int neighbour = instance.getAdjacencyList().get(i).get(j);
+				if (i < neighbour){
+					edgesPartition.add(new PageEntry(i, neighbour, randomNumberGenerator.nextInt(instance.getNumberOfPages())));
 				}
 			}
-
-			KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition, instance.getNumberOfPages());
-			initialSolution.calculateNumberOfCrossingsForPages();
-			initialSolution.calculateNumberOfCrossings();
-//
-			INeighborhood[] neighborhoods = new INeighborhood[2];
-			neighborhoods[0] = new MoveEdgeNeighborhood();
-			neighborhoods[1] = new SwapVertices();
-////
-			//Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
-			//Search search = new VariableNeighborhoodDescent(neighborhoods, initialSolution);
-//
-		INeighborhood[] firstNeighborhoods = new INeighborhood[2];
-		firstNeighborhoods[0] = new MoveEdgeNeighborhood();
-		firstNeighborhoods[1] = new MoveEdgeNeighborhood();
-
-		INeighborhood[] secondNeighborhoods = new INeighborhood[2];
-		secondNeighborhoods[0] = new MoveEdgeNeighborhood();
-		secondNeighborhoods[1] = new MoveEdgeNeighborhood();
-
-			Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
-			search.search();
-
-
-			if(initialSolution.calculateCrossingsFromMap() < minValue) {
-				minIndex = t;
-				initialSolution.calculateNumberOfCrossingsForPages();
-				minValue = initialSolution.calculateCrossingsFromMap();
-				writeSolutionToFile(initialSolution, "instance" + t +".txt");
-			}
-
-			System.out.println("Total number of crossings: " + initialSolution.calculateCrossingsFromMap());
 		}
 
-		System.out.println("Min value = " + minValue + "for index " + minIndex);
+		KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition, instance.getNumberOfPages());
+		IMutation mutation = new RandomMutation(randomNumberGenerator, 0.02, 0.2);
+		ICrossOver crossOver = new UniformCrossOver(randomNumberGenerator);
+		ISelection selections = new RouletteWheelSelection(randomNumberGenerator);
+
+		GeneticAlgorithm ga = new GeneticAlgorithm(30, true, 4, 100000, crossOver, mutation, selections, new GASolution(initialSolution));
+
+		GASolution previousBest = null;
+		while(ga.geneticAlgorithmIteration()){
+			GASolution bestSolution = ga.getBestSolution();
+
+			if(previousBest == null){
+				previousBest = bestSolution;
+			}else{
+				if(bestSolution.getError() < previousBest.getError()){
+					previousBest = bestSolution;
+
+					double error = bestSolution.getError();
+					System.out.println("Iteration: " + ga.currentIterationNumber() + ", error: " + error + ".");
+				}
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    	/*String filename = "instance-15";
+		Random randomNumberGenerator = new Random();
+
+		KPMPInstance instance = KPMPInstance.readInstance(filename + ".txt");
+
+		Integer[] spineOrder = new Integer[instance.getNumVertices()];
+		ArrayList<PageEntry> edgesPartition = new ArrayList<>();
+
+		for (int i = 0; i < instance.getAdjacencyList().size(); i++) {
+			spineOrder[i] = i;
+			for (int j = 0; j < instance.getAdjacencyList().get(i).size(); j++) {
+				int neighbour = instance.getAdjacencyList().get(i).get(j);
+				if (i < neighbour){
+					edgesPartition.add(new PageEntry(i, neighbour, randomNumberGenerator.nextInt(instance.getNumberOfPages())));
+				}
+			}
+		}
+
+		KPMPSolution initialSolution = new KPMPSolution(spineOrder, edgesPartition, instance.getNumberOfPages());
+		initialSolution.calculateNumberOfCrossingsForPages();
+		initialSolution.calculateNumberOfCrossings();*/
+//
+		//INeighborhood[] neighborhoods = new INeighborhood[2];
+		//neighborhoods[0] = new MoveEdgeNeighborhood();
+		//neighborhoods[1] = new SwapVertices();
+////
+		//Search search = new LocalSearch(initialSolution, stepFunction, neighborhood);
+		//Search search = new VariableNeighborhoodDescent(neighborhoods, initialSolution);
+		//Search search = new GeneralVariableNeighborhoodSearch(firstNeighborhoods, secondNeighborhoods, initialSolution);
+		//search.search();
+
+
+		//initialSolution.calculateNumberOfCrossingsForPages();
+		//writeSolutionToFile(initialSolution, filename + "_" +".txt");
+
+		//System.out.println(filename + "_" + " crossings: " + initialSolution.calculateCrossingsFromMap());
 //	}
 ///*=======
 //import java.lang.System;

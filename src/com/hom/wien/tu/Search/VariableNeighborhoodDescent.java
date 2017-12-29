@@ -51,6 +51,6 @@ public class VariableNeighborhoodDescent extends Search {
     public boolean shouldContinue() {
         long currentTime = System.currentTimeMillis();
 
-        return (currentTime - startTime) < 900000;
+        return (currentTime - startTime) < 1800000;
     }
 }
