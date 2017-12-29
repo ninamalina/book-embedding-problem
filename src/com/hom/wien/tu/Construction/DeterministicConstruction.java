@@ -6,16 +6,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import com.hom.wien.tu.Utilities.ArrayIndexComparator;
 import com.hom.wien.tu.Utilities.KPMPInstance;
 import com.hom.wien.tu.Utilities.KPMPSolution;
 import com.hom.wien.tu.Utilities.PageEntry;
 import java.util.Collections;
-
+import java.util.Random;
 public class DeterministicConstruction {
 	
-	public KPMPSolution buildSolution(KPMPInstance instance, boolean random){
-		int n = instance.getNumVertices();
+	public KPMPSolution buildSolution(KPMPInstance instance){
 		int K = instance.getNumberOfPages();
 		List<List<Integer>> adjList = instance.getAdjacencyList();
 		ArrayIndexComparator comparator = new ArrayIndexComparator(adjList);
@@ -23,96 +24,104 @@ public class DeterministicConstruction {
 		Arrays.sort(indexes, comparator);
 		List<Integer> spineOrder = new ArrayList<Integer>();
 		ArrayList<PageEntry> edgesPartition = new ArrayList<>();
-		
-		if (random){
-			Collections.shuffle(spineOrder);
-		}
 
+		List<Integer> verticeOrder = new ArrayList<Integer>();
+		for(int i = 0; i < indexes.length/2; i++){
+			verticeOrder.add(indexes[i]);
+			verticeOrder.add(indexes[indexes.length-i-1]);
+		}
+		if (indexes.length%2==1){
+			verticeOrder.add(indexes[indexes.length/2]);
+		}
+		
+		spineOrder.add(indexes[0]);
 		KPMPSolution currentSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), edgesPartition, K);;
 		currentSolution.calculateNumberOfCrossingsForPages();
-		for (Integer index:indexes){
-			if (!spineOrder.contains(index)){
-				spineOrder.add(index);
-				currentSolution.setSpineOrder(spineOrder.stream().toArray(Integer[]::new));
-			}
-			List<Integer> neighbours = adjList.get(index);
-			if (random){
-				Collections.shuffle(neighbours);
-			}
-			for(int neighbour: neighbours){
-				if (!spineOrder.contains(neighbour)){
-					spineOrder.add(neighbour);
-					currentSolution.setSpineOrder(spineOrder.stream().toArray(Integer[]::new));
-				}
+		
+		for (Integer node:verticeOrder){
+			List<Integer> neighbours = adjList.get(node);
+			
+			if (!spineOrder.contains(node)){ 
+				int n = spineOrder.size();
 				
-				if (neighbour < index){
-					continue;
-				}
-				int bestPage = 0;
-				int bestCrossings = -1;
-				int newCrossingsForPageK = -1;				
-				int oldNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
+				int bestCrossings = Integer.MAX_VALUE;
+				KPMPSolution bestSolution = null;
 				
-				for (int page=0; page < K; page++){
-					ArrayList<PageEntry> newEdgesPartition = new ArrayList(edgesPartition);
-					PageEntry newEdge = new PageEntry(index, neighbour, page);
-					newEdgesPartition.add(newEdge);
-					KPMPSolution newSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), newEdgesPartition, K);
-					int additionalNumberOfcrossingsForPage = newSolution.numberOfCrossingsOnPageForEdge(newEdge);
-					Map<Integer,Integer> newMapOfCrossings = new HashMap(currentSolution.getCrossingsOnPageMap());
-					if (newMapOfCrossings.containsKey(page)){
-						newMapOfCrossings.put(page, newMapOfCrossings.get(page)+additionalNumberOfcrossingsForPage);
-					}else{
-						newMapOfCrossings.put(page, additionalNumberOfcrossingsForPage);
-					}
-					newSolution.setMap(newMapOfCrossings);
+				for (int spineInsert=0; spineInsert < n; spineInsert++){ //check which place is best to insert it
+					List<Integer> tempSpineOrder = new ArrayList<>(spineOrder);
+					tempSpineOrder.add(spineInsert, node);
 					
-					int newNumberOfCrossings = newSolution.calculateCrossingsFromMap();
+					KPMPSolution tempSolution = new KPMPSolution(tempSpineOrder.stream().toArray(Integer[]::new), new ArrayList<>(currentSolution.getEdgePartition()), K);
+					tempSolution.calculateNumberOfCrossingsForPages();
 					
-					if (bestCrossings == -1 || newNumberOfCrossings < bestCrossings){
-						bestPage = page;
-						bestCrossings = newNumberOfCrossings;
-						newCrossingsForPageK = newMapOfCrossings.get(page)+additionalNumberOfcrossingsForPage;
-						
-						if(newNumberOfCrossings == oldNumberOfCrossings){
-							break;
-						}
+					putNeighboursToPages(node, neighbours, tempSolution);
+					int currentCrossings = currentSolution.calculateCrossingsFromMap();
+					if (currentCrossings < bestCrossings){
+						bestCrossings = currentCrossings;
+						bestSolution = tempSolution;
+						spineOrder = new ArrayList<>(Arrays.asList(tempSolution.getSpineOrder()));
 					}
 				}
-				
-				edgesPartition.add(new PageEntry(index,  neighbour,  bestPage));
-				currentSolution.getCrossingsOnPageMap().put(bestPage, newCrossingsForPageK);
+				currentSolution = bestSolution;
+			} else {
+				putNeighboursToPages(node, neighbours, currentSolution);
+				spineOrder = new ArrayList<>(Arrays.asList(currentSolution.getSpineOrder()));
 			}
 		}
-		
-		currentSolution.setEdgePartition(edgesPartition);
 		return currentSolution;
 	}
 
-	public class ArrayIndexComparator implements Comparator<Integer>
-	{
-	    private final List<List<Integer>> array;
+	
+	public void putNeighboursToPages(Integer node, List<Integer> neighbours, KPMPSolution currentSolution) {
+		
+		List<Integer> spineOrder = new ArrayList<>(Arrays.asList(currentSolution.getSpineOrder()));
+		
+		for(int neighbour: neighbours){
+			
+			if (!spineOrder.contains(neighbour)){
+				spineOrder.add(neighbour);
+				currentSolution.setSpineOrder(spineOrder.stream().toArray(Integer[]::new));
+				currentSolution.calculateNumberOfCrossingsForPages();
+			}
+			
+			if (neighbour < node) continue; //to avoid duplicated edges 
 
-	    public ArrayIndexComparator(List<List<Integer>> array)
-	    {
-	        this.array = array;
-	    }
-
-	    public Integer[] createIndexArray()
-	    {
-	        Integer[] indexes = new Integer[array.size()];
-	        for (int i = 0; i < array.size(); i++)
-	        {
-	            indexes[i] = i; // Autoboxing
-	        }
-	        return indexes;
-	    }
-
-	    @Override
-	    public int compare(Integer index1, Integer index2)
-	    {
-	         // Autounbox from Integer to int to use as array indexes
-	        return array.get(index1).size() - array.get(index2).size();
-	    }
+			int bestPage = 0;
+			int bestCrossings = Integer.MAX_VALUE;
+			int newCrossingsForBestPage = Integer.MAX_VALUE;	
+			
+			int oldNumberOfCrossings = currentSolution.calculateCrossingsFromMap();
+			
+			for (int page=0; page < currentSolution.numberOfPages(); page++){
+				ArrayList<PageEntry> tempEdgesPartition = new ArrayList(currentSolution.getEdgePartition());
+				PageEntry newEdge = new PageEntry(node, neighbour, page);
+				tempEdgesPartition.add(newEdge);
+				KPMPSolution tempSolution = new KPMPSolution(spineOrder.stream().toArray(Integer[]::new), tempEdgesPartition, currentSolution.numberOfPages());
+				int additionalNumberOfcrossingsForPage = tempSolution.numberOfCrossingsOnPageForEdge(newEdge);
+				Map<Integer,Integer> tempMapOfCrossings = new HashMap(currentSolution.getCrossingsOnPageMap());
+				
+				if (tempMapOfCrossings.containsKey(page)){
+					tempMapOfCrossings.put(page, tempMapOfCrossings.get(page)+additionalNumberOfcrossingsForPage);
+				}else{
+					tempMapOfCrossings.put(page, additionalNumberOfcrossingsForPage);
+				}
+				tempSolution.setMap(tempMapOfCrossings);
+				
+				int tempNumberOfCrossings = tempSolution.calculateCrossingsFromMap();
+				
+				if (tempNumberOfCrossings < bestCrossings){
+					bestPage = page;
+					bestCrossings = tempNumberOfCrossings;
+					newCrossingsForBestPage = tempMapOfCrossings.get(page);
+					
+					if(tempNumberOfCrossings == oldNumberOfCrossings) break;
+				}
+				
+			}
+			currentSolution.getEdgePartition().add(new PageEntry(node,  neighbour,  bestPage));
+			currentSolution.getCrossingsOnPageMap().put(bestPage, newCrossingsForBestPage);
+			
+		}
 	}
+		
 }
