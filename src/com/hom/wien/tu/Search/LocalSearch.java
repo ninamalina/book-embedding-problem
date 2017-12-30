@@ -42,6 +42,6 @@ public class LocalSearch extends Search {
     public boolean shouldContinue() {
         long currentTime = System.currentTimeMillis();
 
-        return (currentTime - startTime) < 900000;
+        return (currentTime - startTime) < 30000;
     }
 }

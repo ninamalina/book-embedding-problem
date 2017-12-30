@@ -35,8 +35,8 @@ public class GASolution extends KPMPSolution {
 
     private void checkNumberOfCrossings() {
         if (error == -1) {
-            super.calculateNumberOfCrossings();
-            error = super.numberOfCrossings();
+            super.calculateNumberOfCrossingsForPages();
+            error = super.calculateCrossingsFromMap();
         }
     }
 }

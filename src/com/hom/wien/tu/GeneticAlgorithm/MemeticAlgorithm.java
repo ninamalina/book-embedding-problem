@@ -3,15 +3,19 @@ package com.hom.wien.tu.GeneticAlgorithm;
 import com.hom.wien.tu.GeneticAlgorithm.CrossOver.ICrossOver;
 import com.hom.wien.tu.GeneticAlgorithm.Mutation.IMutation;
 import com.hom.wien.tu.GeneticAlgorithm.Selection.ISelection;
+import com.hom.wien.tu.Neighborhood.INeighborhood;
+import com.hom.wien.tu.Search.LocalSearch;
+import com.hom.wien.tu.Search.Search;
+import com.hom.wien.tu.StepFunction.IStepFunction;
 import com.hom.wien.tu.Utilities.PageEntry;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by davorsafranko on 12/28/17.
+ * Created by davorsafranko on 12/29/17.
  */
-public class GeneticAlgorithm {
+public class MemeticAlgorithm {
 
     private int populationSize;
     private boolean elitism;
@@ -24,8 +28,10 @@ public class GeneticAlgorithm {
     private List<GASolution> population;
     private ISelection selection;
     private GASolution initialGraph;
+    private IStepFunction stepFunction;
+    private INeighborhood neighborhood;
 
-    public GeneticAlgorithm(int populationSize, boolean elitism, int keep, int nIterations, ICrossOver crossOver, IMutation mutation, ISelection selection, GASolution initialGraph) {
+    public MemeticAlgorithm(int populationSize, boolean elitism, int keep, int nIterations, ICrossOver crossOver, IMutation mutation, ISelection selection, GASolution initialGraph, IStepFunction stepFunction, INeighborhood neighborhood) {
         this.populationSize = populationSize;
         this.elitism = elitism;
         this.keep = keep;
@@ -34,12 +40,32 @@ public class GeneticAlgorithm {
         this.mutation = mutation;
         this.selection = selection;
         this.initialGraph = initialGraph;
+        this.stepFunction = stepFunction;
+        this.neighborhood = neighborhood;
 
         this.iterationCounter = 0;
         this.randomNumberGenerator = new Random();
         this.population = new ArrayList<>(populationSize);
 
         createFirstGeneration();
+        improveFirstGeneration();
+    }
+
+    private void createFirstGeneration() {
+        for(int i = 0; i < populationSize; i++) {
+            List<Integer> spineOrderList = Arrays.asList(initialGraph.getSpineOrder());
+            Collections.shuffle(spineOrderList);
+            Integer[] spineOrder = spineOrderList.toArray(new Integer[0]);
+
+            List<PageEntry> pages = new ArrayList<>(initialGraph.getEdgePartition());
+            for(PageEntry pageEntry : pages) {
+                pageEntry.page = randomNumberGenerator.nextInt(initialGraph.numberOfPages());
+            }
+
+            GASolution solution = new GASolution(spineOrder, pages, initialGraph.numberOfPages());
+            solution.calculateNumberOfCrossingsForPages();
+            population.add(solution);
+        }
     }
 
     public boolean geneticAlgorithmIteration() {
@@ -82,21 +108,22 @@ public class GeneticAlgorithm {
         return bestN;
     }
 
-    private void createFirstGeneration() {
-        for(int i = 0; i < populationSize; i++) {
-            List<Integer> spineOrderList = Arrays.asList(initialGraph.getSpineOrder());
-            Collections.shuffle(spineOrderList);
-            Integer[] spineOrder = spineOrderList.toArray(new Integer[0]);
+    private void improveFirstGeneration() {
 
-            List<PageEntry> pages = new ArrayList<>(initialGraph.getEdgePartition());
-            for(PageEntry pageEntry : pages) {
-                pageEntry.page = randomNumberGenerator.nextInt(initialGraph.numberOfPages());
-            }
-
-            GASolution solution = new GASolution(spineOrder, pages, initialGraph.numberOfPages());
-            population.add(solution);
+        for(int i = 0; i < 4; i++) {
+            Search localSearch = new LocalSearch(population.get(i), stepFunction, neighborhood);
+            localSearch.search();
+            population.get(i).setNumberOfCrossings(population.get(i).calculateCrossingsFromMap());
         }
 
         this.population.sort(Comparator.comparingInt(GASolution::getError));
     }
+
+    public void improveBestSolution() {
+        Search localSearch = new LocalSearch(population.get(0), stepFunction, neighborhood);
+        localSearch.search();
+
+        population.get(0).setNumberOfCrossings(population.get(0).calculateCrossingsFromMap());
+    }
+
 }

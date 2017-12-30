@@ -24,7 +24,7 @@ public abstract class Search {
         while(shouldContinue() && iterationsWithoutImprovement < 2000) {
             boolean improved = findSolution();
             if(improved) {
-                System.out.println("Current number of crossings: " + currentSolution.calculateCrossingsFromMap());
+                //System.out.println("Current number of crossings: " + currentSolution.calculateCrossingsFromMap());
                 iterationsWithoutImprovement = 0;
             }else {
                 iterationsWithoutImprovement++;

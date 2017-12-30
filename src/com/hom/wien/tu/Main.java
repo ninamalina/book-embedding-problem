@@ -4,6 +4,7 @@ import com.hom.wien.tu.GeneticAlgorithm.CrossOver.ICrossOver;
 import com.hom.wien.tu.GeneticAlgorithm.CrossOver.UniformCrossOver;
 import com.hom.wien.tu.GeneticAlgorithm.GASolution;
 import com.hom.wien.tu.GeneticAlgorithm.GeneticAlgorithm;
+import com.hom.wien.tu.GeneticAlgorithm.MemeticAlgorithm;
 import com.hom.wien.tu.GeneticAlgorithm.Mutation.IMutation;
 import com.hom.wien.tu.GeneticAlgorithm.Mutation.RandomMutation;
 import com.hom.wien.tu.GeneticAlgorithm.Selection.ISelection;
@@ -52,7 +53,8 @@ public class Main {
 		ICrossOver crossOver = new UniformCrossOver(randomNumberGenerator);
 		ISelection selections = new RouletteWheelSelection(randomNumberGenerator);
 
-		GeneticAlgorithm ga = new GeneticAlgorithm(30, true, 4, 100000, crossOver, mutation, selections, new GASolution(initialSolution));
+		//GeneticAlgorithm ga = new GeneticAlgorithm(30, true, 4, 100000, crossOver, mutation, selections, new GASolution(initialSolution));
+		MemeticAlgorithm ga = new MemeticAlgorithm(30, true, 4, 100000, crossOver, mutation, selections, new GASolution(initialSolution), new RandomImprovement(), new MoveEdgeNeighborhood());
 
 		GASolution previousBest = null;
 		while(ga.geneticAlgorithmIteration()){
@@ -61,6 +63,9 @@ public class Main {
 			if(previousBest == null){
 				previousBest = bestSolution;
 			}else{
+				//Only for memetic improve best
+				ga.improveBestSolution();
+
 				if(bestSolution.getError() < previousBest.getError()){
 					previousBest = bestSolution;
 
@@ -179,13 +184,13 @@ public class Main {
     
     public static KPMPSolution computeDeterministic(KPMPInstance instance){
         DeterministicConstruction construction = new DeterministicConstruction();
-        KPMPSolution solution = construction.buildSolution(instance, false);
+        KPMPSolution solution = construction.buildSolution(instance);
         return solution;
     }
     
     public static KPMPSolution computeRandomized(KPMPInstance instance){
         DeterministicConstruction construction = new DeterministicConstruction();
-        KPMPSolution solution = construction.buildSolution(instance, true);
+        KPMPSolution solution = construction.buildSolution(instance);
         return solution;
     }
 
